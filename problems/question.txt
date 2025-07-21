@@ -1,0 +1,141 @@
+Q2. alpha beta with expecti max. Min-max with probabilistic moves.
+
+Move ordering. The order I examine the directions to move makes a difference,
+choose the most efficient side first? You would decide this path with a 
+heuristic. *Search Dynamic ordering*
+
+H-minimax: If you can't reach the terminals then use a heuristics.
+evaluationFunction: H(state, depth) = if state reached max depth then return heuristic of the state.
+		This can be a linear combination of many heursitic functions (like how many ghosts will be left), 
+			(how many points I will have), (how close ghosts are to me), etc.
+
+		Should also consider who's turn it is. In chess to rooks can be facing each other to find profit/loss
+		look at who's turn it is.
+
+Search methods:
+	- Depth-limited search
+	- Depth first iterative search
+	- beam search
+	- use lookup tables
+
+Search Strat:
+	Type A: Wide but shallow
+	Type B: Deep but narrow
+	Could use typeA + typeB?
+
+
+BFS to see which food, capsule & ghosts are reachable.
+
+Expectimax.
+
+=====================================
+For q1, don't duplicate the food & other array until you need to edit it. So don't duplicate
+in the problem class.
+
+=============================================================
+
+https://www.reddit.com/r/roguelikedev/comments/59u44j/warning_a_and_manhattan_distance/
+
+https://code.activestate.com/recipes/578919-python-a-pathfinding-with-binary-heap/
+
+"Manhattan distance is ruled out if your agent can efficiently move diagonally 
+(i.e. the cost of moving to a diagonal is less than 2). Euclidean distance is ruled out 
+if the cost of moving to a neighbouring tile is less than the absolute distance of that move"
+
+
+
+
+=========================NOTE FOR ALL=========================
+While walking you may accidentally walk onto food capsule while
+aiming for something else.
+Test this with q1b/c. tinySearch.lay. 
+This might happen when some food are blocked off so pacman
+walks until all states are exhausted.
+
+
+==============================================================
+
+
+
+Q1b.
+State = {
+	rw, 
+	visited, 
+	food_coords, 
+	directions
+}
+
+food_coords:
+======================================================
+1. Dictionary:
+Case 1:		[key, value] = [node_str, node]
+Case 2: 	[key, value] = [--------, ----]
+
+======================================================
+What should the heuristic be?
+- High commmitment heuristic.
+Divide the layout into 2 halfs from the position of pacman, trying to 
+divide with even number of capsules. Then it investigates the section 
+which has the distance from the origin which is the smallest.
+You investigates that section 
+
+- Naive approach:
+Pick the food_1 and do q1a, this will generate the final state and returns
+a list of directions.
+Then with the food_2 you do q1a again and starts from food_1. This returns
+a list of directions.
+
+
+
+
+astar_body_loop:
+State.visited is a list of list, [[visited_1], [visited_2], ...]. After finding 
+the (k-1)th food you then build up [visited_k] while trying to to find food_k.
+
+How to check for inaccessible foods?
+	if open list is empty. Apply this to q1a too.
+
+
+Did I land on food?:
+- if visited[-1][-1] hasFood then extend visited to have a new list 
+		and remove curr cord from state.food_coords
+- How to check when food is too far away? Would it be faster to just
+	stop.
+
+
+processing new open: 
+conditon:
+old:
+		if new_state not in astarData.closed
+				Meaning: not (new_state is in closed)
+					This is measure by 
+new:
+
+
+
+
+get_successors: 
+Reduendant cases:
+old:
+			if neighbours[neighbour_dir].coord not in visited:
+new:
+			if neighbour[neighbour_dir].coord not in visited[-1]:
+
+new_state:
+old:
+				new_succ.append([
+					State(
+						rolling_weight+1, 
+						visited+[neighbours[neighbour_dir].coord], 
+						food_coord,
+						direction + [neighbour_dir]),
+					neighbour_dir, 1])
+new:
+				new_visited = visited[:-1]
+				new_succ.append([
+					State(
+						rolling_weight+1,
+						visited[:-1]+[visited[-1]+neighbours[neighbour_dir].coord], 
+						food_coord,
+						direction + [neighbour_dir]),
+					neighbour_dir, 1])
